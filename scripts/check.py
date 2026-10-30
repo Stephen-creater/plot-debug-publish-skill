@@ -27,7 +27,7 @@ def platform(line):
 def main(path):
     lines = open(path, encoding="utf-8").read().splitlines()
     errors, report = [], []
-    plat, label, in_block, block = None, "", False, []
+    plat, label, in_block, block, section = None, "", False, [], ""
     for line in lines:
         if line.startswith("```"):
             if in_block:
@@ -39,7 +39,7 @@ def main(path):
                         report.append(f"{plat} 话题 {n} 个（上限 {lim}）")
                         if n > lim:
                             errors.append(f"{plat} 话题 {n} 个，超过 {lim} 个：{' '.join(tags)}")
-                    elif "标题" in label:
+                    elif "标题" in label or ("标题" in section and "简介" not in label):
                         n, lim = len(text), LIMITS[plat]["标题"]
                         report.append(f"{plat} 标题 {n} 字（上限 {lim}）：{text}")
                         if n > lim:
@@ -55,6 +55,8 @@ def main(path):
         if in_block:
             block.append(line)
         elif line.strip():
+            if line.startswith("## "):
+                section = line
             p = platform(line)
             if p:
                 plat, label = p, line
