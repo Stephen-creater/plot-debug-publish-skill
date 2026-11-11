@@ -5,7 +5,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_CORE || "/opt/homebrew/lib/n
   const [html, outdir, ...ids] = process.argv.slice(2);
   const b = await chromium.launch({ headless: true });
   const p = await b.newPage({ viewport: { width: 2000, height: 1800 } });
-  await p.goto('file://' + html); await p.waitForTimeout(1200);
+  await p.goto('file://' + html); await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(1200);  // 先等字体加载完，否则偶尔会用系统字体顶替（2026-11-11 幻视第 7 集踩过）
   for (const id of ids) await p.locator('#' + id).screenshot({ path: `${outdir}/${id}.png` });
   await b.close();
 })();
